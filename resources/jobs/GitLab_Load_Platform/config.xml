@@ -1,0 +1,112 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description></description>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <com.dabsquared.gitlabjenkins.connection.GitLabConnectionProperty plugin="gitlab-plugin@1.2.2">
+      <gitLabConnection>ADOP Gitlab</gitLabConnection>
+    </com.dabsquared.gitlabjenkins.connection.GitLabConnectionProperty>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.StringParameterDefinition>
+          <name>GIT_URL</name>
+          <description>The URL of the git repo for Platform Management.</description>
+          <defaultValue>https://github.com/AccenturePDC/adop-b-framework-gitlab-platform-management.git</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>GIT_REF</name>
+          <description>The branch of the git repo for Platform Management.</description>
+          <defaultValue>master</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.BooleanParameterDefinition>
+          <name>GENERATE_EXAMPLE_WORKSPACE</name>
+          <description>Should an example workspace be generated?</description>
+          <defaultValue>false</defaultValue>
+        </hudson.model.BooleanParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+    <com.sonyericsson.rebuild.RebuildSettings plugin="rebuild@1.25">
+      <autoRebuild>false</autoRebuild>
+      <rebuildDisabled>false</rebuildDisabled>
+    </com.sonyericsson.rebuild.RebuildSettings>
+    <de.pellepelster.jenkins.walldisplay.WallDisplayJobProperty plugin="jenkinswalldisplay@0.6.30"/>
+  </properties>
+  <scm class="hudson.plugins.git.GitSCM" plugin="git@2.4.4">
+    <configVersion>2</configVersion>
+    <userRemoteConfigs>
+      <hudson.plugins.git.UserRemoteConfig>
+        <url>$GIT_URL</url>
+      </hudson.plugins.git.UserRemoteConfig>
+    </userRemoteConfigs>
+    <branches>
+      <hudson.plugins.git.BranchSpec>
+        <name>*/$GIT_REF</name>
+      </hudson.plugins.git.BranchSpec>
+    </branches>
+    <doGenerateSubmoduleConfigurations>false</doGenerateSubmoduleConfigurations>
+    <submoduleCfg class="list"/>
+    <extensions/>
+  </scm>
+  <canRoam>true</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <authToken>UKdjguOElrnS</authToken>
+  <triggers/>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <hudson.tasks.Shell>
+      <command>#!/bin/bash -e
+
+echo -e &quot;Host gitlab
+        StrictHostKeyChecking no
+&quot; &gt;&gt; ~/.ssh/config
+echo -e &quot;Host innersource.accenture.com
+        StrictHostKeyChecking no
+&quot; &gt;&gt; ~/.ssh/config
+echo -e &quot;Host newsource.accenture.com
+        StrictHostKeyChecking no
+&quot; &gt;&gt; ~/.ssh/config
+
+key=$(cat ~/.ssh/id_rsa.pub)
+
+until [[ ! -z $GITLAB_TOKEN ]]; 
+do
+ echo &quot;Waiting for Gitlab token to be available..&quot;
+ GITLAB_TOKEN=&quot;$(curl --silent -X POST &quot;http://gitlab/gitlab/api/v3/session?login=root&amp;password=${GITLAB_ROOT_PASSWORD}&quot; | python -c &quot;import json,sys;obj=json.load(sys.stdin);print obj[&apos;private_token&apos;];&quot;)&quot;
+ sleep 5
+done
+
+curl --header &quot;PRIVATE-TOKEN: $GITLAB_TOKEN&quot; -X POST &quot;http://gitlab/gitlab/api/v3/user/keys&quot; --data-urlencode &quot;title=jenkins@adop-core&quot; --data-urlencode &quot;key=${key}&quot;
+
+# create platform-management into gitlab
+target_repo_name=&quot;platform-management&quot;
+
+curl --header &quot;PRIVATE-TOKEN: $GITLAB_TOKEN&quot; -X POST &quot;http://gitlab/gitlab/api/v3/projects?name=${target_repo_name}&quot;
+
+# Create gitlab repository
+# push the sample codes to the sample Gitlab project
+git remote add adop git@gitlab:root/$target_repo_name.git
+git fetch adop
+git push adop +refs/remotes/origin/*:refs/heads/*</command>
+    </hudson.tasks.Shell>
+    <javaposse.jobdsl.plugin.ExecuteDslScripts plugin="job-dsl@1.45">
+      <targets>bootstrap/**/*.groovy</targets>
+      <usingScriptText>false</usingScriptText>
+      <ignoreExisting>true</ignoreExisting>
+      <removedJobAction>IGNORE</removedJobAction>
+      <removedViewAction>IGNORE</removedViewAction>
+      <lookupStrategy>JENKINS_ROOT</lookupStrategy>
+      <additionalClasspath></additionalClasspath>
+    </javaposse.jobdsl.plugin.ExecuteDslScripts>
+  </builders>
+  <publishers/>
+  <buildWrappers>
+    <hudson.plugins.ws__cleanup.PreBuildCleanup plugin="ws-cleanup@0.26">
+      <deleteDirs>false</deleteDirs>
+      <cleanupParameter></cleanupParameter>
+      <externalDelete></externalDelete>
+    </hudson.plugins.ws__cleanup.PreBuildCleanup>
+  </buildWrappers>
+</project>
