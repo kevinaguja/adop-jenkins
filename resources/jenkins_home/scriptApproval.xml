@@ -4,6 +4,7 @@
   <approvedSignatures>
     <string>field java.util.ArrayList size</string>
     <string>method groovy.lang.GString plus java.lang.String</string>
+    <string>staticMethod jenkins.model.Jenkins getInstance</string>
   </approvedSignatures>
   <aclApprovedSignatures/>
   <approvedClasspathEntries/>

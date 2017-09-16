@@ -12,12 +12,12 @@
         <hudson.model.StringParameterDefinition>
           <name>GIT_URL</name>
           <description>The URL of the git repo for Platform Management.</description>
-          <defaultValue>https://github.com/AccenturePDC/adop-b-framework-gitlab-platform-management.git</defaultValue>
+          <defaultValue>https://github.com/pdcbuckets/adop-b-framework-gitlab-platform-management.git</defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.StringParameterDefinition>
           <name>GIT_REF</name>
           <description>The branch of the git repo for Platform Management.</description>
-          <defaultValue>master</defaultValue>
+          <defaultValue>jenkins-2</defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.BooleanParameterDefinition>
           <name>GENERATE_EXAMPLE_WORKSPACE</name>
@@ -59,7 +59,7 @@
     <hudson.tasks.Shell>
       <command>#!/bin/bash -e
 
-echo -e &quot;Host gitlab
+echo -e &quot;Host ${GITLAB_HOST_NAME}
         StrictHostKeyChecking no
 &quot; &gt;&gt; ~/.ssh/config
 echo -e &quot;Host innersource.accenture.com
@@ -71,23 +71,24 @@ echo -e &quot;Host newsource.accenture.com
 
 key=$(cat ~/.ssh/id_rsa.pub)
 
+# Ensure to setup a GITLAB_ROOT_PASSWORD global password variable!
 until [[ ! -z $GITLAB_TOKEN ]]; 
 do
  echo &quot;Waiting for Gitlab token to be available..&quot;
- GITLAB_TOKEN=&quot;$(curl --silent -X POST &quot;http://gitlab/gitlab/api/v3/session?login=root&amp;password=${GITLAB_ROOT_PASSWORD}&quot; | python -c &quot;import json,sys;obj=json.load(sys.stdin);print obj[&apos;private_token&apos;];&quot;)&quot;
+ GITLAB_TOKEN=&quot;$(curl --silent -X POST &quot;${GITLAB_HTTP_URL}/api/v3/session?login=root&amp;password=${GITLAB_ROOT_PASSWORD}&quot; | python -c &quot;import json,sys;obj=json.load(sys.stdin);print obj[&apos;private_token&apos;];&quot;)&quot;
  sleep 5
 done
 
-curl --header &quot;PRIVATE-TOKEN: $GITLAB_TOKEN&quot; -X POST &quot;http://gitlab/gitlab/api/v3/user/keys&quot; --data-urlencode &quot;title=jenkins@adop-core&quot; --data-urlencode &quot;key=${key}&quot;
+curl --header &quot;PRIVATE-TOKEN: $GITLAB_TOKEN&quot; -X POST &quot;${GITLAB_HTTP_URL}/api/v3/user/keys&quot; --data-urlencode &quot;title=jenkins@adop-core&quot; --data-urlencode &quot;key=${key}&quot;
 
 # create platform-management into gitlab
 target_repo_name=&quot;platform-management&quot;
 
-curl --header &quot;PRIVATE-TOKEN: $GITLAB_TOKEN&quot; -X POST &quot;http://gitlab/gitlab/api/v3/projects?name=${target_repo_name}&quot;
+curl --header &quot;PRIVATE-TOKEN: $GITLAB_TOKEN&quot; -X POST &quot;${GITLAB_HTTP_URL}/api/v3/projects?name=${target_repo_name}&quot;
 
 # Create gitlab repository
 # push the sample codes to the sample Gitlab project
-git remote add adop git@gitlab:root/$target_repo_name.git
+git remote add adop git@${GITLAB_HOST_NAME}:root/$target_repo_name.git
 git fetch adop
 git push adop +refs/remotes/origin/*:refs/heads/*</command>
     </hudson.tasks.Shell>
