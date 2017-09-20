@@ -55,6 +55,7 @@ next-build-number:1.4
 greenballs:1.15
 mask-passwords:2.10.1
 ansicolor:0.5.2
+slack:2.3
 
 # Credentials
 credentials:2.1.16
