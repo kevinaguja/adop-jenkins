@@ -1,4 +1,4 @@
-FROM jenkins/jenkins:2.60.3
+FROM jenkins/jenkins:2.79
 
 MAINTAINER John Bryan Sazon and Arcy Teodoro 
 

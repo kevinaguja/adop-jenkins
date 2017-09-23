@@ -98,8 +98,8 @@ elif [[ $ADOP_GITLAB_ENABLED = "true" ]]; then
 fi
 
 echo "Starting Jenkins.."
-echo "skip upgrade wizard step after installation"
-echo "2.60.3" > /var/jenkins_home/jenkins.install.UpgradeWizard.state
+#echo "skip upgrade wizard step after installation"
+#echo "2.60.3" > /var/jenkins_home/jenkins.install.UpgradeWizard.state
 
-chown -R 1000:1000 /var/jenkins_home
+#chown -R 1000:1000 /var/jenkins_home
 su jenkins -c /usr/local/bin/jenkins.sh

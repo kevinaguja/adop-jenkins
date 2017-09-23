@@ -23,7 +23,7 @@ multiple-scms:0.6
 ssh-credentials:1.13
 
 # blue ocean
-blueocean:1.2.2
+blueocean:1.2.4
 
 # Pipeline Utility Steps Plugin - https://wiki.jenkins-ci.org/display/JENKINS/Pipeline+Utility+Steps+Plugin
 pipeline-utility-steps:1.1.5
@@ -37,7 +37,7 @@ swarm:3.4
 ldap:1.16
 role-strategy:2.5.1
 build-pipeline-plugin:1.5.4
-parameterized-trigger:2.32
+parameterized-trigger:2.33
 extensible-choice-parameter:1.4.1
 dynamicparameter:0.2.0
 ssh-agent:1.15
