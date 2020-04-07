@@ -1,6 +1,5 @@
-FROM jenkins:2.7.2
-
-MAINTAINER Bryan Sazon and Arcy Teodoro 
+FROM jenkins:2.60.3
+MAINTAINER Earl Kevin A. Aguja
 
 ENV GERRIT_HOST_NAME gerrit
 ENV GERRIT_PORT 8080
